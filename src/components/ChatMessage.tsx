@@ -4,7 +4,7 @@ import { formatChatDate } from "../utils";
 import defaultAvatar from "../assets/defaultAvatar.png";
 import deleteSvg from "../assets/delete.svg";
 import { supabase } from "../lib/supabase-client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface ChatMessageProps {
   message: Message;
@@ -13,53 +13,56 @@ interface ChatMessageProps {
 
 export const ChatMessage = ({ message, isCurrentUser }: ChatMessageProps) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  useEffect(() => {
+
+    return () => {
+      setIsHovered(false);
+    };
+  }, []);
+
   const toggleHover = () => {
     setIsHovered(!isHovered);
   };
+
   const handleDeleteMessage = async () => {
     try {
       const { error } = await supabase
-        .from("Chat")
+        .from("chat")
         .update({ deleted: true })
         .eq("id", message.id);
       if (error) {
-        console.error("Error deleting message:", error);
+        console.error("Error deleting message:", error.message);
         return;
       }
       console.log("Message deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting message:", error);
+    } catch (err) {
+      console.error("Unexpected error deleting message:", err);
     }
   };
 
   const username =
     message.provider !== "email"
       ? message.user_name
-      : message.user_name !== null &&
-        message.user_name.substring(0, 6) +
-          "*".repeat(message.user_name.length - 6);
+      : message.user_name !== null
+      ? message.user_name.substring(0, 6) +
+        "*".repeat(message.user_name.length - 6)
+      : "Unknown User";
+
   return (
     <Container
       isCurrentUser={isCurrentUser}
       onMouseEnter={toggleHover}
       onMouseLeave={toggleHover}
     >
-      {" "}
       <MessageBubble isCurrentUser={isCurrentUser}>
         {isCurrentUser && isHovered && !message.deleted && (
           <DeleteButton src={deleteSvg} onClick={handleDeleteMessage} />
         )}
-
         <Avatar src={message.user_avatar_url || defaultAvatar} alt="pfp" />
         <div>
           <MessageInfo>
-            {message.provider === "github" ? (
-              <NameLink href={`https://github.com/${username}`} target="_blank">
-                {username}
-              </NameLink>
-            ) : (
-              username
-            )}{" "}
+            {username}{" "}
             <Timestamp>
               {message.created_at
                 ? formatChatDate(new Date(message.created_at))
@@ -101,6 +104,7 @@ const MessageBubble = styled.div<{ isCurrentUser: boolean }>`
   box-shadow: 0 4px 14px 2px
     ${(props) => (props.isCurrentUser ? "#9436ff48" : "#14ac6848")};
 `;
+
 const DeleteButton = styled.img`
   width: 24px;
   cursor: pointer;
@@ -110,6 +114,7 @@ const DeleteButton = styled.img`
     filter: brightness(0.8) saturate(1.5) hue-rotate(0deg);
   }
 `;
+
 const Avatar = styled.img`
   border-radius: 100%;
   width: 48px;

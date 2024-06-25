@@ -24,14 +24,16 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await supabase.from("Chat").select("*");
+      const { data } = await supabase
+        .from('chat')
+        .select('*');
 
       setMessages(data ?? []);
     };
     scrollToBottom(false);
     fetchData();
     const channel = supabase
-      .channel("Chat")
+      .channel("chat")
       .on(
         "postgres_changes",
         {
@@ -72,10 +74,10 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
       provider: user.app_metadata.provider || null,
     };
 
-    const { error } = await supabase.from("Chat").insert([newMessage]);
+    const { error } = await supabase.from("chat").insert([newMessage]);
 
     if (error) {
-      alert(error);
+      console.log(error.message);
     } else {
       setMessageToSend("");
       scrollToBottom();
@@ -96,21 +98,20 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
     <>
       <TopBar>
         <TopBarContent>
-          <SignOut onClick={() => supabase.auth.signOut()}>Sign Out</SignOut>
           <UserName>
-            Logged as:{" "}
             <Avatar
               src={user.user_metadata.avatar_url || defaultAvatar}
               alt="pfp"
-            />{" "}
+            />
             {userName}
           </UserName>
+          <SignOut onClick={() => supabase.auth.signOut()}>Sign Out</SignOut>
         </TopBarContent>
       </TopBar>
       <Container>
         {messages &&
           messages
-            .sort((a, b) => a.id - b.id) // Sort the messages by ID in ascending order
+            .sort((a, b) => a.id - b.id)
             .map((message: Message) => (
               <ChatMessage
                 key={message.id}
@@ -144,34 +145,36 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
 const TopBar = styled.div`
   position: fixed;
   top: 0;
-  background-color: #101010cc;
-  backdrop-filter: blur(6px);
+  background-color: #000000;
   width: 100%;
+  z-index: 1000;
 `;
 
 const TopBarContent = styled.div`
   display: flex;
-  justify-content: left;
+  justify-content: flex-end;
   align-items: center;
-  margin: 0 22vw;
+  padding: 0 22vw;
   gap: 12px;
   @media (max-width: 1024px) {
-    margin: 0;
+    padding: 0 10px;
     gap: 4px;
   }
 `;
 
 const SignOut = styled.button`
-  padding: 12px 18px;
+  padding: 10px 16px;
   font-size: 16px;
   margin: 8px;
-  background: #333;
-  border-radius: 10px;
+  background: rgb(5 21 36);
+  border-radius: 6px;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: 0.3s border;
+  transition: 0.3s border, 0.3s background;
   &:hover {
-    border: 2px solid #14ac68;
+    border: 2px solid #f5f6f7;
+    background: #3b5998;
+    color: #f5f6f7;
   }
 `;
 const Avatar = styled.img`
@@ -186,6 +189,7 @@ const UserName = styled.p`
   align-items: center;
   font-size: 18px;
   font-weight: bold;
+  color: #f5f6f7;
 `;
 
 const Container = styled.div`
@@ -201,30 +205,27 @@ const InputContainer = styled.div`
   position: fixed;
   bottom: 0;
   margin: 0;
-  background-color: #101010cc;
-  backdrop-filter: blur(6px);
+  background-color: #4267b2; /* Facebook blue color */
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* gap: 6px; */
   padding: 12px 0;
 `;
 
 const MessageInput = styled.input`
   padding: 10px 18px;
   font-size: 18px;
-  /* border-radius: 100px; */
   border-radius: 14px 0 0 14px;
   border: 2px solid transparent;
   transition: 0.3s all;
   &:not(:disabled) {
     &:hover {
-      border: 2px solid #14ac68;
+      border: 2px solid #3b5998;
     }
     &:focus {
       outline: none;
-      border: 2px solid #14ac68;
+      border: 2px solid #3b5998;
     }
   }
 `;
@@ -236,12 +237,13 @@ const SendButton = styled.button`
   border: none;
   cursor: pointer;
   transition: 0.3s all;
-  background-color: #14ac68;
-  border: 2px solid #14ac68;
+  background-color: #3b5998; /* Facebook blue color */
+  border: 2px solid #3b5998;
   text-transform: uppercase;
+  color: #f5f6f7;
   &:not(:disabled) {
     &:hover {
-      background-color: #2ccb83;
+      background-color: #2a4887;
     }
   }
 `;
