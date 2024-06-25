@@ -5,6 +5,7 @@ import { Message, NewMessage } from "../types/collection";
 import styled from "styled-components";
 import { ChatMessage } from ".";
 import defaultAvatar from "../assets/defaultAvatar.png";
+import logo from "../assets/logo.png"; // Import the logo image
 
 interface ChatRoomProps {
   session: Session;
@@ -24,9 +25,7 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data } = await supabase
-        .from('chat')
-        .select('*');
+      const { data } = await supabase.from("chat").select("*");
 
       setMessages(data ?? []);
     };
@@ -94,17 +93,19 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
       }, 3000);
     }
   };
+
   return (
     <>
       <TopBar>
         <TopBarContent>
-          <UserName>
+          <Logo src={logo} alt="logo" /> {/* Add the logo here */}
+          <UserDetails>
             <Avatar
               src={user.user_metadata.avatar_url || defaultAvatar}
               alt="pfp"
             />
-            {userName}
-          </UserName>
+            <UserName>{userName}</UserName>
+          </UserDetails>
           <SignOut onClick={() => supabase.auth.signOut()}>Sign Out</SignOut>
         </TopBarContent>
       </TopBar>
@@ -152,13 +153,33 @@ const TopBar = styled.div`
 
 const TopBarContent = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between; /* Adjust to space between items */
   align-items: center;
-  padding: 0 22vw;
+  padding: 0 2vw;
   gap: 12px;
   @media (max-width: 1024px) {
     padding: 0 10px;
     gap: 4px;
+  }
+`;
+
+const Logo = styled.img`
+  height: 40px; /* Adjust the height as needed */
+`;
+
+const UserDetails = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+const UserName = styled.p`
+  font-size: 18px;
+  font-weight: bold;
+  color: #f5f6f7;
+
+  @media (max-width: 768px) {
+    display: none;
   }
 `;
 
@@ -180,21 +201,15 @@ const SignOut = styled.button`
 const Avatar = styled.img`
   border-radius: 100%;
   width: 32px;
-  margin: 0 6px;
-`;
 
-const UserName = styled.p`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-  font-weight: bold;
-  color: #f5f6f7;
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const Container = styled.div`
   padding: 20px;
-  margin: 75px 22vw;
+  margin: 75px 2vw;
 
   @media (max-width: 1024px) {
     margin: 75px 0;
@@ -205,7 +220,7 @@ const InputContainer = styled.div`
   position: fixed;
   bottom: 0;
   margin: 0;
-  background-color: #4267b2; /* Facebook blue color */
+  background-color: #000000; /* Facebook blue color */
   width: 100%;
   display: flex;
   justify-content: center;
@@ -216,6 +231,7 @@ const InputContainer = styled.div`
 const MessageInput = styled.input`
   padding: 10px 18px;
   font-size: 18px;
+  width: 70%;
   border-radius: 14px 0 0 14px;
   border: 2px solid transparent;
   transition: 0.3s all;
@@ -237,8 +253,8 @@ const SendButton = styled.button`
   border: none;
   cursor: pointer;
   transition: 0.3s all;
-  background-color: #3b5998; /* Facebook blue color */
-  border: 2px solid #3b5998;
+  background-color: rgb(86 86 164 / 29%);
+  border: 2px solid rgb(17 19 23);
   text-transform: uppercase;
   color: #f5f6f7;
   &:not(:disabled) {

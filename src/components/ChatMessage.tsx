@@ -15,7 +15,6 @@ export const ChatMessage = ({ message, isCurrentUser }: ChatMessageProps) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   useEffect(() => {
-
     return () => {
       setIsHovered(false);
     };
@@ -87,6 +86,7 @@ const Container = styled.div<{ isCurrentUser: boolean }>`
   justify-content: ${(props) =>
     props.isCurrentUser ? "flex-end" : "flex-start"};
   align-items: center;
+  width: 100%;
   margin-bottom: 16px;
   gap: 6px;
 `;
@@ -95,14 +95,14 @@ const MessageBubble = styled.div<{ isCurrentUser: boolean }>`
   display: flex;
   gap: 6px;
   align-items: center;
-  background-color: ${(props) => (props.isCurrentUser ? "#9436ff" : "#14ac68")};
+  background-color: ${(props) => (props.isCurrentUser ? "#000000" : "#000000")};
   color: white;
   border-radius: ${(props) =>
     props.isCurrentUser ? "28px 28px 6px 28px" : "28px 28px 28px 6px"};
   padding: 8px 12px;
   max-width: 350px;
-  box-shadow: 0 4px 14px 2px
-    ${(props) => (props.isCurrentUser ? "#9436ff48" : "#14ac6848")};
+  box-shadow: 0px 4px 14px 2px
+    ${(props) => (props.isCurrentUser ? "#5aff3647" : "#ec1a1a42")};
 `;
 
 const DeleteButton = styled.img`

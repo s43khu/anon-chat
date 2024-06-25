@@ -2,7 +2,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { supabase } from "../lib/supabase-client";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
-import logo from "../assets/logo256.png";
+import logo from "../assets/logo.png";
 import styled from "styled-components";
 
 export const Login = () => {
@@ -16,6 +16,8 @@ export const Login = () => {
       <AuthContainer>
         <Auth
           supabaseClient={supabase as SupabaseClient}
+          magicLink
+          providers={[]}
           appearance={{
             theme: ThemeSupa,
             variables: {
@@ -37,7 +39,6 @@ export const Login = () => {
             },
           }}
           theme="dark"
-          magicLink
         />
       </AuthContainer>
     </LoginContainer>

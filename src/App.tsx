@@ -3,6 +3,7 @@ import { supabase } from "./lib/supabase-client";
 import { Session } from "@supabase/supabase-js";
 import { ChatRoom, Login } from "./components";
 import { GlobalStyle } from "./styles";
+import StarsCanvas from "./components/Stars";
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   useEffect(() => {
@@ -22,6 +23,7 @@ function App() {
   return (
     <>
       <GlobalStyle />
+      <StarsCanvas />
       {!session ? <Login /> : <ChatRoom session={session} />}
     </>
   );
