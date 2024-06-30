@@ -4,7 +4,6 @@ import { Points, PointMaterial, Preload } from "@react-three/drei";
 import * as random from "maath/random/dist/maath-random.esm";
 import styled from "styled-components";
 
-// Define a type for the props if needed
 interface StarsProps {
   [key: string]: any;
 }
@@ -26,7 +25,7 @@ const Stars: React.FC<StarsProps> = (props) => {
         <PointMaterial
           transparent
           color="#f272c8"
-          size={0.002} // Adjust size of the stars
+          size={0.002}
           sizeAttenuation={true}
           depthWrite={false}
         />
@@ -58,4 +57,5 @@ const CanvasContainer = styled.div`
   height: 100vh;
   z-index: -1; /* Ensure the canvas stays behind other elements */
   pointer-events: none; /* Ensure the canvas doesn't interfere with interactions */
+  background-color: rgba(0, 0, 0, 0.9); /* Darker background */
 `;

@@ -9,7 +9,7 @@ export const Login = () => {
   return (
     <LoginContainer>
       <LogoImage src={logo} alt="logo" />
-      <LoginHeader>Welcome to my chat app!!</LoginHeader>
+      <LoginHeader>Welcome to Anony Chat</LoginHeader>
       <LoginDescription>
         <br /> <b>Sign in to get started.</b>
       </LoginDescription>

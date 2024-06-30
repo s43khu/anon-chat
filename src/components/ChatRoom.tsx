@@ -1,11 +1,12 @@
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase-client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Message, NewMessage } from "../types/collection";
 import styled from "styled-components";
 import { ChatMessage } from ".";
 import defaultAvatar from "../assets/defaultAvatar.png";
-import logo from "../assets/logo.png"; // Import the logo image
+import logo from "../assets/logo.png";
+import ProfileUpdateForm from "./ProfileUpdateForm";
 
 interface ChatRoomProps {
   session: Session;
@@ -13,10 +14,14 @@ interface ChatRoomProps {
 
 export const ChatRoom = ({ session }: ChatRoomProps) => {
   const user = session.user as User;
-  const [messages, setMessages] = useState<Message[]>();
-  const [waitTime, setWaitTime] = useState<number>(0);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [messageToSend, setMessageToSend] = useState<string>("");
+  const [waitTime, setWaitTime] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isProfileUpdateOpen, setIsProfileUpdateOpen] = useState(false);
 
   const userName =
     user.user_metadata.preferred_username ||
@@ -24,13 +29,7 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
     user.email;
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await supabase.from("chat").select("*");
-
-      setMessages(data ?? []);
-    };
-    scrollToBottom(false);
-    fetchData();
+    fetchMessages(true);
     const channel = supabase
       .channel("chat")
       .on(
@@ -40,7 +39,7 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
           schema: "public",
         },
         () => {
-          fetchData();
+          fetchMessages(true);
         }
       )
       .subscribe();
@@ -49,13 +48,36 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
     };
   }, []);
 
-  const scrollToBottom = (smooth: boolean = true) => {
-    setTimeout(() => {
-      window.scroll({
-        top: document.body.scrollHeight,
-        behavior: smooth ? "smooth" : "instant",
-      });
-    }, 500);
+  const fetchMessages = async (fromStart = false) => {
+    if (isLoading) return;
+    setIsLoading(true);
+
+    const from = fromStart ? 0 : messages.length;
+    const to = from + 49;
+
+    const { data, error } = await supabase
+      .from("chat")
+      .select("*")
+      .order("id", { ascending: false })
+      .range(from, to);
+
+    if (error) {
+      console.log("Error fetching messages:", error.message);
+    } else {
+      setMessages((prevMessages) =>
+        fromStart ? data.reverse() : [...data.reverse(), ...prevMessages]
+      );
+      setHasMore(data.length === 50);
+    }
+    setIsLoading(false);
+  };
+
+  const handleScroll = () => {
+    if (containerRef.current) {
+      if (containerRef.current.scrollTop === 0 && hasMore) {
+        fetchMessages();
+      }
+    }
   };
 
   const handleSendMessage = async () => {
@@ -94,22 +116,40 @@ export const ChatRoom = ({ session }: ChatRoomProps) => {
     }
   };
 
+  const scrollToBottom = (smooth: boolean = true) => {
+    setTimeout(() => {
+      window.scroll({
+        top: document.body.scrollHeight,
+        behavior: smooth ? "smooth" : "instant",
+      });
+    }, 500);
+  };
+
   return (
     <>
+      <ProfileUpdateForm
+        user={user}
+        open={isProfileUpdateOpen}
+        onClose={() => setIsProfileUpdateOpen(false)}
+      />
       <TopBar>
         <TopBarContent>
-          <Logo src={logo} alt="logo" /> {/* Add the logo here */}
+          <Logo src={logo} alt="logo" />
           <UserDetails>
             <Avatar
               src={user.user_metadata.avatar_url || defaultAvatar}
               alt="pfp"
             />
-            <UserName>{userName}</UserName>
+            <UserName>{user.user_metadata.name || user.email}</UserName>
+            {/* <button onClick={() => setIsProfileUpdateOpen(true)}>
+              Edit Profile
+            </button> */}
           </UserDetails>
           <SignOut onClick={() => supabase.auth.signOut()}>Sign Out</SignOut>
         </TopBarContent>
       </TopBar>
-      <Container>
+
+      <Container ref={containerRef} onScroll={handleScroll}>
         {messages &&
           messages
             .sort((a, b) => a.id - b.id)
@@ -210,6 +250,8 @@ const Avatar = styled.img`
 const Container = styled.div`
   padding: 20px;
   margin: 75px 2vw;
+  overflow-y: auto;
+  height: calc(100vh - 150px); /* Adjust the height to fit the screen */
 
   @media (max-width: 1024px) {
     margin: 75px 0;
