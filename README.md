@@ -10,6 +10,7 @@ My intuitive and easy-to-use interface allows you to jump right into the chat wi
 
 🚀 Future Updates
 I'me constantly working to improve ChatApp.
+Adding minor changes to the functionality.
 
 Get Started 🚀
 Open ChatApp: Launch the app and you’ll be instantly connected to the global chat room.
