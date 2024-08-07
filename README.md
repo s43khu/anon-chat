@@ -9,7 +9,7 @@ Engage in conversations with users from all corners of the globe without the nee
 My intuitive and easy-to-use interface allows you to jump right into the chat without any hassle. Just open the app and start chatting!
 
 🚀 Future Updates
-# feature update for auto delete messages in intervals
+~ feature update for auto delete messages in intervals
 I'me constantly working to improve ChatApp.
 Adding minor changes to the functionality.
 
